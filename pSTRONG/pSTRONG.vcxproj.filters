@@ -16,8 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="pSTRONG.ino" />
-    <None Include="sterowanie2silniki.ino" />
-    <None Include="sterowanieQTR.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.pSTRONG.vsarduino.h">
