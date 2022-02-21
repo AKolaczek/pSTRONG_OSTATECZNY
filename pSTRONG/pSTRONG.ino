@@ -52,7 +52,7 @@ QTRSensors qtr;
 const uint8_t SensorCount = 8;
 uint16_t sensorValues[SensorCount];
 uint32_t minimalnaSrednia = 0, maksymalnaSrednia = 0, dzielnikWartosci = 0,dzielnikWartosci2 = 0, wartoscInkrementacji = 0, j = 0;
-uint32_t readLineMIN = 5000, readLineMAX=0,odczyt;
+uint32_t readLineMIN = 5000, readLineMAX=0,odczyt,przedzialy=3,inkrementacja=0;
 
 
 void setup()
@@ -160,11 +160,18 @@ void setup()
     Serial.print("Inkrementacja: ");
     Serial.println(wartoscInkrementacji);
     */
+    inkrementacja = (readLineMAX - readLineMIN) / przedzialy;
+
     Serial.print("readLineMIN: ");
     Serial.println(readLineMIN);
     Serial.print("readLineMAX: ");
     Serial.println(readLineMAX);
-    delay(1000);
+    Serial.print("inkrementacja: ");
+    Serial.println(inkrementacja);
+    
+    for (uint8_t i = 0; i <= 10; i++) {
+        miganie();
+    }
     
 }
 
@@ -184,30 +191,38 @@ void loop()
         Serial.print('\t');
     }
     Serial.println(position);
+    /*
         if(j == 0)
         {
             start(START);
             delay(150);
             ++j;
         }
-    /*
-    if (position >= minimalnaSrednia && position <= (minimalnaSrednia + wartoscInkrementacji))
+    */
+
+    if (position >= readLineMIN && position <= inkrementacja)
     {
+        start(START);
+        delay(20);
         start(SKRET_PRAWO);
     }
-    else if (position > (minimalnaSrednia + wartoscInkrementacji) <= (minimalnaSrednia + (2 * wartoscInkrementacji)))
+    else if (position > inkrementacja && position <= (2*inkrementacja))
     {
+        start(START);
+        delay(20);
         start(PRZOD);
     }
-    else if (position > (minimalnaSrednia + (2 * wartoscInkrementacji)) <= (minimalnaSrednia + (3 * wartoscInkrementacji)))
+    else if (position > (2*inkrementacja) && position <= readLineMAX)
     {
+        start(START);
+        delay(20);
         start(SKRET_LEWO);
     }
-    */
-    delay(250);
+    
+    delay(500);
 }
 
-void start(bool direction) {
+void start(int direction) {
 
     if (direction == PRZOD) {
         digitalWrite(motor1.output1, LOW);
@@ -248,4 +263,10 @@ void start(bool direction) {
         analogWrite(motor1.PWM, speedMAX);
         analogWrite(motor2.PWM, speedMAX);
     }
+}
+void miganie() {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(250);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(250);
 }
