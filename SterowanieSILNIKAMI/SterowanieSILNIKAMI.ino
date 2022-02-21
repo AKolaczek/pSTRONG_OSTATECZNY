@@ -36,12 +36,12 @@ void setup() {
     pinMode(motor2.PWM, OUTPUT);
     pinMode(motor2.output1, OUTPUT);
     pinMode(motor2.output2, OUTPUT);
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i <= 5; i++)
     {
         miganie();
     }
     
-    delay(5000000);
+   // delay(5000000);
 }
 
 void loop() {
@@ -56,6 +56,8 @@ void loop() {
     delay(50);
     start(tyl, speedMAX - 150);
     delay(2000);
+    stop();
+    delay(1000);
 
     miganie();
     /*
