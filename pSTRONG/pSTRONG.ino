@@ -36,7 +36,7 @@
 #define SKRET_LEWO 2
 #define SKRET_PRAWO 3 
 #define speedMAX 255
-#define speedLOW 180 
+#define speedLOW 255 
 #define START 4
 
 struct motor
@@ -202,33 +202,39 @@ void loop()
 
     if (position >= readLineMIN && position <= inkrementacja)
     {
-        start(START);
-        delay(20);
+        Serial.println("Prawo");
         start(SKRET_PRAWO);
+        delay(200);
+        
     }
     else if (position > inkrementacja && position <= (2*inkrementacja))
     {
-        start(START);
-        delay(20);
+        Serial.println("Prosto");
+        
         start(PRZOD);
+        delay(200);
+        
     }
     else if (position > (2*inkrementacja) && position <= readLineMAX)
     {
-        start(START);
-        delay(20);
+        Serial.print("Lewo");
+        
         start(SKRET_LEWO);
+        delay(200);
+        
     }
     
-    delay(500);
+    stop();
+    delay(1000);
 }
 
 void start(int direction) {
 
     if (direction == PRZOD) {
-        digitalWrite(motor1.output1, LOW);
-        digitalWrite(motor1.output2, HIGH);
-        digitalWrite(motor2.output1, LOW);
-        digitalWrite(motor2.output2, HIGH);
+        digitalWrite(motor1.output1, HIGH);
+        digitalWrite(motor1.output2, LOW);
+        digitalWrite(motor2.output1, HIGH);
+        digitalWrite(motor2.output2, LOW);
 
         analogWrite(motor1.PWM, speedLOW);
         analogWrite(motor2.PWM, speedLOW);
@@ -236,8 +242,8 @@ void start(int direction) {
     }
     else if (direction == SKRET_LEWO)
     {
-        digitalWrite(motor1.output1, LOW);
-        digitalWrite(motor1.output2, HIGH);
+        digitalWrite(motor1.output1, HIGH);
+        digitalWrite(motor1.output2, LOW);
         digitalWrite(motor2.output1, LOW);
         digitalWrite(motor2.output2, HIGH);
 
@@ -248,8 +254,8 @@ void start(int direction) {
     {
         digitalWrite(motor1.output1, LOW);
         digitalWrite(motor1.output2, HIGH);
-        digitalWrite(motor2.output1, LOW);
-        digitalWrite(motor2.output2, HIGH);
+        digitalWrite(motor2.output1, HIGH);
+        digitalWrite(motor2.output2, LOW);
 
         analogWrite(motor1.PWM, speedLOW);
         analogWrite(motor2.PWM, speedLOW-50);
@@ -269,4 +275,15 @@ void miganie() {
     delay(250);
     digitalWrite(LED_BUILTIN, LOW);
     delay(250);
+}
+
+void stop()
+{
+  digitalWrite(motor1.output1, LOW);
+        digitalWrite(motor1.output2, HIGH);
+        digitalWrite(motor2.output1, LOW);
+        digitalWrite(motor2.output2, HIGH);
+
+        analogWrite(motor1.PWM, 0);
+        analogWrite(motor2.PWM, 0);
 }
