@@ -31,12 +31,13 @@
 // etc. 0 means the line is directly under sensor 0 or was last seen by sensor
 // 0 before being lost. 5000 means the line is directly under sensor 5 or was
 // last seen by sensor 5 before being lost.
-#define przod 0
-#define tyl 1
+#define PRZOD 0
+#define TYL 1
 #define SKRET_LEWO 2
 #define SKRET_PRAWO 3 
-#define speedMAX 128
-#define speedLOW 75 
+#define speedMAX 255
+#define speedLOW 180 
+#define START 4
 
 struct motor
 {
@@ -50,7 +51,7 @@ struct motor motor2;
 QTRSensors qtr;
 const uint8_t SensorCount = 8;
 uint16_t sensorValues[SensorCount];
-int minimalnaSrednia, maksymalnaSrednia, dzielnikWartosci, zakres, wartoscInkrementacji;
+int minimalnaSrednia, maksymalnaSrednia, dzielnikWartosci, wartoscInkrementacji,j=0;
 
 void setup()
 {
@@ -81,13 +82,22 @@ void setup()
     // 0.1 ms per sensor * 4 samples per sensor read (default) * 6 sensors
     // * 10 reads per calibrate() call = ~24 ms per calibrate() call.
     // Call calibrate() 400 times to make calibration take about 10 seconds.
+    Serial.print(" \n-------\n-----\n----\n--");
+    Serial.print("ROZPOCZYNAM KALIBRACJE");
+    Serial.print(" \n\n\n");
     for (uint16_t i = 0; i < 400; i++)
     {
         qtr.calibrate();
     }
     digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
+    Serial.print(" \n-------\n-----\n----\n--");
+    Serial.print("ZAKONCZONO KALIBRACJI");
+    Serial.print(" \n\n\n");
 
     // print the calibration minimum values measured when emitters were on
+    Serial.print(" \n-------\n-----\n----\n--");
+    Serial.print("WYPISUJE MINIMALNE ORAZ MAKSYMALNE WARTOSCI");
+    Serial.print(" \n\n\n");
     Serial.begin(9600);
     for (uint8_t i = 0; i < SensorCount; i++)
     {
@@ -108,14 +118,20 @@ void setup()
         dzielnikWartosci += qtr.calibrationOn.minimum[i];
     }
     maksymalnaSrednia = maksymalnaSrednia / dzielnikWartosci;
-    zakres = maksymalnaSrednia - minimalnaSrednia;
-    wartoscInkrementacji = zakres / 3;
+    wartoscInkrementacji =(maksymalnaSrednia - minimalnaSrednia) / 3;
+    Serial.print(" \n-------\n-----\n----\n--");
+    Serial.print("ZAKONCZONO OBLICZENIA");
+    Serial.print(" \n\n\n");
     Serial.println();
     Serial.println();
-    delay(10000);
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(5000);
-    digitalWrite(LED_BUILTIN, LOW);
+    for(int i=0;i<6;++i)
+    {
+        miganie();
+    }
+    //delay(1000);
+    //digitalWrite(LED_BUILTIN, HIGH);
+    //delay(5000);
+    //digitalWrite(LED_BUILTIN, LOW);
 }
 
 void loop()
@@ -133,32 +149,39 @@ void loop()
         Serial.print('\t');
     }
     Serial.println(position);
-
+        if(j ==0)
+        {
+            start(START);
+            delay(50);
+            ++j;
+        }
+        
     if (position >= minimalnaSrednia && position <= (minimalnaSrednia + wartoscInkrementacji))
     {
-        start(2);
+        start(SKRET_PRAWO);
     }
-    else if (position >= (minimalnaSrednia + wartoscInkrementacji) <= (minimalnaSrednia + (2 * wartoscInkrementacji)))
+    else if (position > (minimalnaSrednia + wartoscInkrementacji) <= (minimalnaSrednia + (2 * wartoscInkrementacji)))
     {
-        start(0);
+        start(PRZOD);
     }
-    else if (position >= (minimalnaSrednia + (2 * wartoscInkrementacji)) <= (minimalnaSrednia + (3 * wartoscInkrementacji)))
+    else if (position > (minimalnaSrednia + (2 * wartoscInkrementacji)) <= (minimalnaSrednia + (3 * wartoscInkrementacji)))
     {
-        start(3);
+        start(SKRET_LEWO);
     }
 
     delay(250);
 }
 void start(bool direction) {
 
-    if (direction == 0) {
+    if (direction == PRZOD) {
         digitalWrite(motor1.output1, LOW);
         digitalWrite(motor1.output2, HIGH);
         digitalWrite(motor2.output1, LOW);
         digitalWrite(motor2.output2, HIGH);
 
-        analogWrite(motor1.PWM, speedMAX);
-        analogWrite(motor2.PWM, speedMAX);
+        analogWrite(motor1.PWM, speedLOW);
+        analogWrite(motor2.PWM, speedLOW);
+       
     }
     else if (direction == SKRET_LEWO)
     {
@@ -167,8 +190,8 @@ void start(bool direction) {
         digitalWrite(motor2.output1, LOW);
         digitalWrite(motor2.output2, HIGH);
 
-        analogWrite(motor1.PWM, speedLOW);
-        analogWrite(motor2.PWM, speedMAX);
+        analogWrite(motor1.PWM, speedLOW-50);
+        analogWrite(motor2.PWM, speedLOW);
     }
     else if (direction == SKRET_PRAWO)
     {
@@ -177,7 +200,22 @@ void start(bool direction) {
         digitalWrite(motor2.output1, LOW);
         digitalWrite(motor2.output2, HIGH);
 
+        analogWrite(motor1.PWM, speedLOW);
+        analogWrite(motor2.PWM, speedLOW-50);
+    }else if(direction == START)
+    {
+        digitalWrite(motor1.output1, LOW);
+        digitalWrite(motor1.output2, HIGH);
+        digitalWrite(motor2.output1, LOW);
+        digitalWrite(motor2.output2, HIGH);
+
         analogWrite(motor1.PWM, speedMAX);
-        analogWrite(motor2.PWM, speedLOW);
+        analogWrite(motor2.PWM, speedMAX);
     }
+}
+void miganie() {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(250);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(250);
 }
