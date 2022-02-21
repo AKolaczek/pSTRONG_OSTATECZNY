@@ -36,21 +36,28 @@ void setup() {
     pinMode(motor2.PWM, OUTPUT);
     pinMode(motor2.output1, OUTPUT);
     pinMode(motor2.output2, OUTPUT);
-
-    miganie();
-    delay(5000);
+    for (int i = 0; i < 50; i++)
+    {
+        miganie();
+    }
+    
+    delay(5000000);
 }
 
 void loop() {
     // put your main code here, to run repeatedly:
     start(przod, speedMAX);
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(2500);
-    digitalWrite(LED_BUILTIN, LOW);
-    start(przod, speedMAX-100);
-    miganie();
-    delay(2500);
+    delay(50);
+    start(przod, speedMAX - 150);
+    delay(2000);
     stop();
+    delay(1000);
+    start(tyl, speedMAX);
+    delay(50);
+    start(tyl, speedMAX - 150);
+    delay(2000);
+
+    miganie();
     /*
     start(tyl, speedMAX);
     digitalWrite(LED_BUILTIN, HIGH);
@@ -62,7 +69,7 @@ void loop() {
 }
 
 void start(bool direction, int speed) {
-
+    digitalWrite(LED_BUILTIN, HIGH);
     if (direction) {
         digitalWrite(motor1.output1, LOW);
         digitalWrite(motor1.output2, HIGH);
@@ -82,6 +89,7 @@ void start(bool direction, int speed) {
         analogWrite(motor1.PWM, speed);
         analogWrite(motor2.PWM, speed);
     }
+    digitalWrite(LED_BUILTIN, LOW);
 }
 
 void stop() {
@@ -94,7 +102,7 @@ void stop() {
 }
 void miganie() {
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(500);
+    delay(250);
     digitalWrite(LED_BUILTIN, LOW);
-    delay(500);
+    delay(250);
 }
