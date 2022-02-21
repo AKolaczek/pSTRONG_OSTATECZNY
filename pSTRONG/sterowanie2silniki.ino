@@ -19,7 +19,6 @@ struct motor
 struct motor motor1;
 struct motor motor2;
 
-
 void setup() {
     // pinMode(5, OUTPUT);
     // pinMode(6, OUTPUT);
@@ -38,25 +37,28 @@ void setup() {
     pinMode(motor2.output1, OUTPUT);
     pinMode(motor2.output2, OUTPUT);
 
-
+    miganie();
+    delay(5000);
 }
 
 void loop() {
     // put your main code here, to run repeatedly:
     start(przod, speedMAX);
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(5000);
-    //start(left, 127);
-    stop();
+    delay(2500);
     digitalWrite(LED_BUILTIN, LOW);
-    delay(5000);
+    start(przod, speedMAX-100);
+    miganie();
+    delay(2500);
+    stop();
+    /*
     start(tyl, speedMAX);
     digitalWrite(LED_BUILTIN, HIGH);
     delay(5000);
     stop();
     digitalWrite(LED_BUILTIN, LOW);
     delay(1000);
-
+    */
 }
 
 void start(bool direction, int speed) {
@@ -89,4 +91,10 @@ void stop() {
     digitalWrite(motor2.output2, LOW);
     analogWrite(motor1.PWM, 0);
     analogWrite(motor2.PWM, 0);
+}
+void miganie() {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(500);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(500);
 }
