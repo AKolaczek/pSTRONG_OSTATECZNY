@@ -75,7 +75,7 @@ void setup()
     }
     Serial.println();
     Serial.println();
-    delay(1000);
+    delay(100000000);
 }
 
 void loop()
