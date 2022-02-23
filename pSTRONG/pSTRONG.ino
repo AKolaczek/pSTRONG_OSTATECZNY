@@ -6,37 +6,12 @@
 
 #include <QTRSensors.h>
 
-// This example is designed for use with six analog QTR sensors. These
-// reflectance sensors should be connected to analog pins A0 to A5. The
-// sensors' emitter control pin (CTRL or LEDON) can optionally be connected to
-// digital pin 2, or you can leave it disconnected and remove the call to
-// setEmitterPin().
-//
-// The setup phase of this example calibrates the sensors for ten seconds and
-// turns on the Arduino's LED (usually on pin 13) while calibration is going
-// on. During this phase, you should expose each reflectance sensor to the
-// lightest and darkest readings they will encounter. For example, if you are
-// making a line follower, you should slide the sensors across the line during
-// the calibration phase so that each sensor can get a reading of how dark the
-// line is and how light the ground is. Improper calibration will result in
-// poor readings.
-//
-// The main loop of the example reads the calibrated sensor values and uses
-// them to estimate the position of a line. You can test this by taping a piece
-// of 3/4" black electrical tape to a piece of white paper and sliding the
-// sensor across it. It prints the sensor values to the serial monitor as
-// numbers from 0 (maximum reflectance) to 1000 (minimum reflectance) followed
-// by the estimated location of the line as a number from 0 to 5000. 1000 means
-// the line is directly under sensor 1, 2000 means directly under sensor 2,
-// etc. 0 means the line is directly under sensor 0 or was last seen by sensor
-// 0 before being lost. 5000 means the line is directly under sensor 5 or was
-// last seen by sensor 5 before being lost.
 #define PRZOD 0
 #define TYL 1
 #define SKRET_LEWO 2
 #define SKRET_PRAWO 3 
 #define speedMAX 255
-#define speedLOW 255 
+#define speedLOW 255
 #define START 4
 
 struct motor
@@ -47,18 +22,15 @@ struct motor
 };
 struct motor motor1;
 struct motor motor2;
-
 QTRSensors qtr;
+
 const uint8_t SensorCount = 8;
 uint16_t sensorValues[SensorCount];
-uint32_t minimalnaSrednia = 0, maksymalnaSrednia = 0, dzielnikWartosci = 0,dzielnikWartosci2 = 0, wartoscInkrementacji = 0, j = 0;
-uint32_t readLineMIN = 5000, readLineMAX=0,odczyt,przedzialy=3,inkrementacja=0;
 
 
 void setup()
 {
-    //configure the motors
-    // pinMode(LED_BUILTIN, OUTPUT);
+    // configure the sensors
     motor1.PWM = 5;
     motor1.output1 = 7;
     motor1.output2 = 8;
@@ -71,7 +43,6 @@ void setup()
     pinMode(motor2.PWM, OUTPUT);
     pinMode(motor2.output1, OUTPUT);
     pinMode(motor2.output2, OUTPUT);
-    // configure the sensors
     qtr.setTypeAnalog();
     qtr.setSensorPins((const uint8_t[]) { A0, A1, A2, A3, A4, A5, A6, A7 }, SensorCount);
     //qtr.setEmitterPin(2);
@@ -84,95 +55,30 @@ void setup()
     // 0.1 ms per sensor * 4 samples per sensor read (default) * 6 sensors
     // * 10 reads per calibrate() call = ~24 ms per calibrate() call.
     // Call calibrate() 400 times to make calibration take about 10 seconds.
-    for (uint16_t i = 0; i < 300; i++)
+    for (uint16_t i = 0; i < 400; i++)
     {
         qtr.calibrate();
-        odczyt = qtr.readLineBlack(sensorValues);
-        if (readLineMAX < odczyt) {
-            readLineMAX = odczyt;
-        }
-        if (readLineMIN > odczyt) {
-            readLineMIN = odczyt;
-        }
     }
     digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
+
     // print the calibration minimum values measured when emitters were on
     Serial.begin(9600);
-    for (uint32_t i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < SensorCount; i++)
     {
         Serial.print(qtr.calibrationOn.minimum[i]);
         Serial.print(' ');
-        /*minimalnaSrednia = minimalnaSrednia + (1000 * i * qtr.calibrationOn.minimum[i]);
-        dzielnikWartosci = dzielnikWartosci +qtr.calibrationOn.minimum[i];*/
     }
     Serial.println();
-    /* WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE
-    for (uint32_t i = 0; i < 8; i++) {
-        minimalnaSrednia = minimalnaSrednia + (1000 * i * qtr.calibrationOn.minimum[i]);
-        dzielnikWartosci =  dzielnikWartosci + (uint32_t) qtr.calibrationOn.minimum[i];
-        Serial.print(minimalnaSrednia);
-        Serial.print(' ');
-    }
-    Serial.println();
-    Serial.print("minimalna wartosc licznika: ");
-    Serial.println(minimalnaSrednia);
-    Serial.print("minimalna wartosc dzielnika : ");
-    Serial.println(dzielnikWartosci);
 
-    minimalnaSrednia = (uint32_t) ((long double)(minimalnaSrednia) / (long double)(dzielnikWartosci));
-
-    Serial.print("minimalna wartosc sredniezonej wa: ");
-    Serial.println(minimalnaSrednia);
-    Serial.println();
-    */
     // print the calibration maximum values measured when emitters were on
-    for (uint32_t i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < SensorCount; i++)
     {
         Serial.print(qtr.calibrationOn.maximum[i]);
         Serial.print(' ');
-        /*maksymalnaSrednia = maksymalnaSrednia +  (1000 * i * qtr.calibrationOn.maximum[i]);
-        dzielnikWartosci = dzielnikWartosci + qtr.calibrationOn.minimum[i];*/
     }
     Serial.println();
-    /* WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE WAZNE
-    for (uint32_t i = 0; i < 8; i++) {
-        maksymalnaSrednia = maksymalnaSrednia +  (1000 * i * qtr.calibrationOn.maximum[i]);
-        dzielnikWartosci = dzielnikWartosci + (uint32_t) qtr.calibrationOn.minimum[i];
-        Serial.print(maksymalnaSrednia);
-        Serial.print(' ');
-    }
-
     Serial.println();
-    Serial.print("maksymalna wartosc licznika: ");
-    Serial.println(maksymalnaSrednia);
-    Serial.print("maksymalna wartosc dziekalnika: ");
-    Serial.println(dzielnikWartosci);
-    Serial.print("maksymalna wartosc sr wazonej: ");
-    Serial.println(maksymalnaSrednia);
-    maksymalnaSrednia =(uint32_t) ((long double)(maksymalnaSrednia) / (long double)(dzielnikWartosci));
-    wartoscInkrementacji =(uint32_t) ((long double) (maksymalnaSrednia - minimalnaSrednia) / 3.);
-
-    Serial.println();
-    Serial.print("minimalna wartosc sredniej: ");
-    Serial.println(minimalnaSrednia);
-    Serial.print("maksymalna wartosc sredniej: ");
-    Serial.println(maksymalnaSrednia);
-    Serial.print("Inkrementacja: ");
-    Serial.println(wartoscInkrementacji);
-    */
-    inkrementacja = (readLineMAX - readLineMIN) / przedzialy;
-
-    Serial.print("readLineMIN: ");
-    Serial.println(readLineMIN);
-    Serial.print("readLineMAX: ");
-    Serial.println(readLineMAX);
-    Serial.print("inkrementacja: ");
-    Serial.println(inkrementacja);
-    
-    for (uint8_t i = 0; i <= 10; i++) {
-        miganie();
-    }
-    
+    delay(1000);
 }
 
 void loop()
@@ -184,49 +90,27 @@ void loop()
     // print the sensor values as numbers from 0 to 1000, where 0 means maximum
     // reflectance and 1000 means minimum reflectance, followed by the line
     // position
-    
     for (uint8_t i = 0; i < SensorCount; i++)
     {
         Serial.print(sensorValues[i]);
         Serial.print('\t');
     }
     Serial.println(position);
-    /*
-        if(j == 0)
-        {
-            start(START);
-            delay(150);
-            ++j;
-        }
-    */
-
-    if (position >= readLineMIN && position <= inkrementacja)
+    int16_t error = position - 3500;
+    start(PRZOD);
+    if (error < -1000)
     {
-        Serial.println("Prawo");
-        start(SKRET_PRAWO);
-        delay(200);
-        
+        // the line is on the left
+        start(SKRET_LEWO);  // turn left
     }
-    else if (position > inkrementacja && position <= (2*inkrementacja))
+    else if (error > 1000)
     {
-        Serial.println("Prosto");
-        
-        start(PRZOD);
-        delay(200);
-        
+        // the line is on the right
+        start(SKRET_PRAWO);  // turn right
     }
-    else if (position > (2*inkrementacja) && position <= readLineMAX)
-    {
-        Serial.print("Lewo");
-        
-        start(SKRET_LEWO);
-        delay(200);
-        
-    }
-    
-    stop();
-    delay(1000);
+    // set motor speeds using the two motor speed variables above
 }
+
 
 void start(int direction) {
 
@@ -238,7 +122,9 @@ void start(int direction) {
 
         analogWrite(motor1.PWM, speedLOW);
         analogWrite(motor2.PWM, speedLOW);
-       
+
+
+
     }
     else if (direction == SKRET_LEWO)
     {
@@ -247,8 +133,9 @@ void start(int direction) {
         digitalWrite(motor2.output1, LOW);
         digitalWrite(motor2.output2, HIGH);
 
-        analogWrite(motor1.PWM, speedLOW-50);
-        analogWrite(motor2.PWM, speedLOW);
+        analogWrite(motor1.PWM, speedMAX);
+        analogWrite(motor2.PWM, 0);
+
     }
     else if (direction == SKRET_PRAWO)
     {
@@ -257,9 +144,11 @@ void start(int direction) {
         digitalWrite(motor2.output1, HIGH);
         digitalWrite(motor2.output2, LOW);
 
-        analogWrite(motor1.PWM, speedLOW);
-        analogWrite(motor2.PWM, speedLOW-50);
-    }else if(direction == START)
+        analogWrite(motor1.PWM, 0);
+        analogWrite(motor2.PWM, speedMAX);
+
+    }
+    else if (direction == START)
     {
         digitalWrite(motor1.output1, LOW);
         digitalWrite(motor1.output2, HIGH);
@@ -269,21 +158,17 @@ void start(int direction) {
         analogWrite(motor1.PWM, speedMAX);
         analogWrite(motor2.PWM, speedMAX);
     }
-}
-void miganie() {
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(250);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(250);
+    delay(40);
+    stop();
 }
 
 void stop()
 {
-  digitalWrite(motor1.output1, LOW);
-        digitalWrite(motor1.output2, HIGH);
-        digitalWrite(motor2.output1, LOW);
-        digitalWrite(motor2.output2, HIGH);
+    digitalWrite(motor1.output1, LOW);
+    digitalWrite(motor1.output2, HIGH);
+    digitalWrite(motor2.output1, LOW);
+    digitalWrite(motor2.output2, HIGH);
 
-        analogWrite(motor1.PWM, 0);
-        analogWrite(motor2.PWM, 0);
+    analogWrite(motor1.PWM, 0);
+    analogWrite(motor2.PWM, 0);
 }

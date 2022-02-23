@@ -18,7 +18,7 @@
 #define __AVR_ATmega328p__
 #define _VMDEBUG 1
 #define F_CPU 16000000L
-#define ARDUINO 108016
+#define ARDUINO 108019
 #define ARDUINO_AVR_NANO
 #define ARDUINO_ARCH_AVR
 #define __cplusplus 201103L
@@ -90,5 +90,7 @@ typedef void *__builtin_va_list;
 #define pgm_read_ptr(address_short)   short()
 
 #include "pSTRONG.ino"
+#include "sterowanie2silniki.ino"
+#include "sterowanieQTR.ino"
 #endif
 #endif
