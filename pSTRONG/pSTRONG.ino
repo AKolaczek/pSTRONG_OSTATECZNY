@@ -13,6 +13,8 @@
 #define speedMAX 255
 #define speedLOW 255
 #define START 4
+#define MAX_SPEED_ENGINE_1 200
+#define MAX_SPEED_ENGINE_2 200
 
 struct motor
 {
@@ -26,7 +28,8 @@ QTRSensors qtr;
 
 const uint8_t SensorCount = 8;
 uint16_t sensorValues[SensorCount];
-
+double KP = 0.1;
+double KD = 5;
 
 void setup()
 {
@@ -78,14 +81,16 @@ void setup()
     }
     Serial.println();
     Serial.println();
-    delay(1000);
+    delay(5000);
 }
 
 void loop()
 {
+    static uint16_t lastError = 0;
     // read calibrated sensor values and obtain a measure of the line position
     // from 0 to 5000 (for a white line, use readLineWhite() instead)
     uint16_t position = qtr.readLineBlack(sensorValues);
+    int16_t error = position - 3500;
 
     // print the sensor values as numbers from 0 to 1000, where 0 means maximum
     // reflectance and 1000 means minimum reflectance, followed by the line
@@ -96,79 +101,20 @@ void loop()
         Serial.print('\t');
     }
     Serial.println(position);
-    int16_t error = position - 3500;
-    start(PRZOD);
-    if (error < -1000)
-    {
-        // the line is on the left
-        start(SKRET_LEWO);  // turn left
-    }
-    else if (error > 1000)
-    {
-        // the line is on the right
-        start(SKRET_PRAWO);  // turn right
-    }
+    int16_t motorSpeed = KP * error + KD * (error - lastError);
+    lastError = error;
+    int16_t m1Speed = MAX_SPEED_ENGINE_1 + motorSpeed;
+    int16_t m2Speed = MAX_SPEED_ENGINE_2 - motorSpeed;
+    // It might help to keep the speeds positive (this is optional). You might
+    // also want to add a similar check to keep the speeds from exceeding a
+    // maximum limit.
+    if (m1Speed < 0) { m1Speed = 0; }
+    if (m2Speed < 0) { m2Speed = 0; }
     // set motor speeds using the two motor speed variables above
+    if (m1Speed < 0) { m1Speed = 0; }
+    if (m2Speed < 0) { m2Speed = 0; }
+    if (m1Speed > MAX_SPEED_ENGINE_1) { m1Speed = MAX_SPEED_ENGINE_1; }
+    if (m2Speed > MAX_SPEED_ENGINE_2) { m2Speed = MAX_SPEED_ENGINE_2; }
 }
 
 
-void start(int direction) {
-
-    if (direction == PRZOD) {
-        digitalWrite(motor1.output1, HIGH);
-        digitalWrite(motor1.output2, LOW);
-        digitalWrite(motor2.output1, HIGH);
-        digitalWrite(motor2.output2, LOW);
-
-        analogWrite(motor1.PWM, speedLOW);
-        analogWrite(motor2.PWM, speedLOW);
-
-
-
-    }
-    else if (direction == SKRET_LEWO)
-    {
-        digitalWrite(motor1.output1, HIGH);
-        digitalWrite(motor1.output2, LOW);
-        digitalWrite(motor2.output1, LOW);
-        digitalWrite(motor2.output2, HIGH);
-
-        analogWrite(motor1.PWM, speedMAX);
-        analogWrite(motor2.PWM, 0);
-
-    }
-    else if (direction == SKRET_PRAWO)
-    {
-        digitalWrite(motor1.output1, LOW);
-        digitalWrite(motor1.output2, HIGH);
-        digitalWrite(motor2.output1, HIGH);
-        digitalWrite(motor2.output2, LOW);
-
-        analogWrite(motor1.PWM, 0);
-        analogWrite(motor2.PWM, speedMAX);
-
-    }
-    else if (direction == START)
-    {
-        digitalWrite(motor1.output1, LOW);
-        digitalWrite(motor1.output2, HIGH);
-        digitalWrite(motor2.output1, LOW);
-        digitalWrite(motor2.output2, HIGH);
-
-        analogWrite(motor1.PWM, speedMAX);
-        analogWrite(motor2.PWM, speedMAX);
-    }
-    delay(40);
-    stop();
-}
-
-void stop()
-{
-    digitalWrite(motor1.output1, LOW);
-    digitalWrite(motor1.output2, HIGH);
-    digitalWrite(motor2.output1, LOW);
-    digitalWrite(motor2.output2, HIGH);
-
-    analogWrite(motor1.PWM, 0);
-    analogWrite(motor2.PWM, 0);
-}

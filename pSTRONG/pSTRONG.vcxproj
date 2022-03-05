@@ -73,10 +73,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\pSTRONG;$(ProjectDir)..\..\..\Documents\Arduino\libraries\QTRSensors;D:\Arduino\hardware\arduino\avr\cores\arduino;D:\Arduino\hardware\arduino\avr\variants\yun;D:\Arduino\hardware\tools\avr\\lib\gcc\avr\7.3.0\include;D:\Arduino\hardware\tools\avr\avr\include;D:\Arduino\hardware\tools\avr\\lib\gcc\avr\7.3.0\include;D:\Arduino\hardware\tools\avr\avr\include-fixed;D:\Arduino\hardware\tools\avr\avr\include\avr;D:\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;D:\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;D:\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\pSTRONG;$(ProjectDir)..\..\..\Documents\Arduino\libraries\QTRSensors;D:\Arduino\hardware\arduino\avr\cores\arduino;D:\Arduino\hardware\arduino\avr\variants\eightanaloginputs;$(ProjectDir)..\..\LOKALN~1\pSTRONG;D:\Arduino\hardware\tools\avr\\lib\gcc\avr\7.3.0\include;D:\Arduino\hardware\tools\avr\avr\include;D:\Arduino\hardware\tools\avr\\lib\gcc\avr\7.3.0\include;D:\Arduino\hardware\tools\avr\avr\include-fixed;D:\Arduino\hardware\tools\avr\avr\include\avr;D:\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;D:\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;D:\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>$(ProjectDir)__vm\.pSTRONG.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>__AVR_atmega32u4__;__AVR_ATmega32U4__;__AVR_ATmega32u4__;_VMDEBUG=1;F_CPU=16000000L;ARDUINO=108019;ARDUINO_AVR_YUN;ARDUINO_ARCH_AVR;USB_VID=0x2341;USB_PID=0x8041;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__AVR_atmega328p__;__AVR_ATmega328P__;__AVR_ATmega328p__;_VMDEBUG=1;F_CPU=16000000L;ARDUINO=108019;ARDUINO_AVR_NANO;ARDUINO_ARCH_AVR;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -106,12 +106,6 @@
     <None Include="pSTRONG.ino">
       <FileType>CppCode</FileType>
     </None>
-    <None Include="sterowanie2silniki.ino">
-      <FileType>CppCode</FileType>
-    </None>
-    <None Include="sterowanieQTR.ino">
-      <FileType>CppCode</FileType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.pSTRONG.vsarduino.h" />
@@ -121,7 +115,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties config.Debug.customdebug_yun_debugger_type="universal" />
+      <UserProperties config.Debug.customdebug_nano_atmega328old_debugger_type="universal" config.Debug.customdebug_yun_debugger_type="universal" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
