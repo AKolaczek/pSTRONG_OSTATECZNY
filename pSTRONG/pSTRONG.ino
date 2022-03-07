@@ -15,7 +15,7 @@
 #define START 4
 #define MAX_SPEED_ENGINE_1 200
 #define MAX_SPEED_ENGINE_2 200
-
+//teraz moj komentarz
 struct motor
 {
     int output1;
