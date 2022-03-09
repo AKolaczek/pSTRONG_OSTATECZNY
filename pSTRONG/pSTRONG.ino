@@ -102,9 +102,6 @@ void loop()
     
     if (m1Speed < 0) { m1Speed = 0; }
     if (m2Speed < 0) { m2Speed = 0; }
-    //2 razy to samo
-    if (m1Speed < 0) { m1Speed = 0; }
-    if (m2Speed < 0) { m2Speed = 0; }
     if (m1Speed > MAX_SPEED_ENGINE_1) { m1Speed = MAX_SPEED_ENGINE_1; }
     if (m2Speed > MAX_SPEED_ENGINE_2) { m2Speed = MAX_SPEED_ENGINE_2; }
     analogWrite(motor1.PWM, m1Speed);
