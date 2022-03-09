@@ -1,8 +1,3 @@
-/*
- Name:		sterowanieQTR.ino
- Created:	2/20/2022 11:25:06 AM
- Author:	hp
-*/
 
 #include <QTRSensors.h>
 
@@ -13,8 +8,8 @@
 #define speedMAX 255
 #define speedLOW 255
 #define START 4
-#define MAX_SPEED_ENGINE_1 200
-#define MAX_SPEED_ENGINE_2 200
+#define MAX_SPEED_ENGINE_1 255
+#define MAX_SPEED_ENGINE_2 255
 
 struct motor
 {
@@ -33,7 +28,7 @@ double KD = 5;
 
 void setup()
 {
-    // configure the sensors
+ 
     motor1.PWM = 5;
     motor1.output1 = 7;
     motor1.output2 = 8;
@@ -48,23 +43,19 @@ void setup()
     pinMode(motor2.output2, OUTPUT);
     qtr.setTypeAnalog();
     qtr.setSensorPins((const uint8_t[]) { A0, A1, A2, A3, A4, A5, A6, A7 }, SensorCount);
-    //qtr.setEmitterPin(2);
+
 
     delay(500);
     pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
+    digitalWrite(LED_BUILTIN, HIGH); 
 
-    // analogRead() takes about 0.1 ms on an AVR.
-    // 0.1 ms per sensor * 4 samples per sensor read (default) * 6 sensors
-    // * 10 reads per calibrate() call = ~24 ms per calibrate() call.
-    // Call calibrate() 400 times to make calibration take about 10 seconds.
     for (uint16_t i = 0; i < 400; i++)
     {
         qtr.calibrate();
     }
-    digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
+    digitalWrite(LED_BUILTIN, LOW); 
 
-    // print the calibration minimum values measured when emitters were on
+   
     Serial.begin(9600);
     for (uint8_t i = 0; i < SensorCount; i++)
     {
@@ -73,7 +64,7 @@ void setup()
     }
     Serial.println();
 
-    // print the calibration maximum values measured when emitters were on
+    
     for (uint8_t i = 0; i < SensorCount; i++)
     {
         Serial.print(qtr.calibrationOn.maximum[i]);
@@ -82,19 +73,21 @@ void setup()
     Serial.println();
     Serial.println();
     delay(5000);
+    digitalWrite(motor1.output1, LOW);
+    digitalWrite(motor1.output2, HIGH);
+    digitalWrite(motor2.output1, LOW);
+    digitalWrite(motor2.output2, HIGH);
+    analogWrite(motor1.PWM, 0);
+    analogWrite(motor2.PWM, 0);
 }
-
+/* STEROWANIE PID'em */
 void loop()
 {
     static uint16_t lastError = 0;
-    // read calibrated sensor values and obtain a measure of the line position
-    // from 0 to 5000 (for a white line, use readLineWhite() instead)
+   
     uint16_t position = qtr.readLineBlack(sensorValues);
     int16_t error = position - 3500;
 
-    // print the sensor values as numbers from 0 to 1000, where 0 means maximum
-    // reflectance and 1000 means minimum reflectance, followed by the line
-    // position
     for (uint8_t i = 0; i < SensorCount; i++)
     {
         Serial.print(sensorValues[i]);
@@ -105,16 +98,67 @@ void loop()
     lastError = error;
     int16_t m1Speed = MAX_SPEED_ENGINE_1 + motorSpeed;
     int16_t m2Speed = MAX_SPEED_ENGINE_2 - motorSpeed;
-    // It might help to keep the speeds positive (this is optional). You might
-    // also want to add a similar check to keep the speeds from exceeding a
-    // maximum limit.
+    
+    
     if (m1Speed < 0) { m1Speed = 0; }
     if (m2Speed < 0) { m2Speed = 0; }
-    // set motor speeds using the two motor speed variables above
+    
     if (m1Speed < 0) { m1Speed = 0; }
     if (m2Speed < 0) { m2Speed = 0; }
     if (m1Speed > MAX_SPEED_ENGINE_1) { m1Speed = MAX_SPEED_ENGINE_1; }
     if (m2Speed > MAX_SPEED_ENGINE_2) { m2Speed = MAX_SPEED_ENGINE_2; }
+    analogWrite(motor1.PWM, m1Speed);
+    analogWrite(motor2.PWM, m2Speed);
+    delay(100);
 }
+
+/*  STEROWANIE BEZ PID'a INSTRUKCJAMI IF{}
+
+void loop()
+{
+    int16_t position = qtr.readLineBlack(sensorValues);
+    if ((sensorValues[0] > 850) && (sensorValues[1] > 850) && (sensorValues[2] > 850) && (sensorValues[3] > 850) && (sensorValues[4] > 850) && (sensorValues[5] > 850) && (sensorValues[6] > 850))
+    {
+        analogWrite(motor1.PWM, 0);
+        analogWrite(motor2.PWM, 0);
+        return;
+    }
+    
+    int16_t error = position - 3500;
+    digitalWrite(motor1.output1, LOW);
+    digitalWrite(motor1.output2, HIGH);
+    digitalWrite(motor2.output1, LOW);
+    digitalWrite(motor2.output2, HIGH);
+    analogWrite(motor1.PWM, 255);
+    analogWrite(motor2.PWM, 255);
+    delay(30);
+    
+    if (error < -500)
+    {
+        
+        digitalWrite(motor1.output1, LOW);
+        digitalWrite(motor1.output2, HIGH);
+        digitalWrite(motor2.output1, HIGH);
+        digitalWrite(motor2.output2, LOW);
+        analogWrite(motor1.PWM, 255);
+        analogWrite(motor2.PWM, 255);  
+    }
+    if (error > 500)
+    {
+        
+        digitalWrite(motor1.output1, HIGH);
+        digitalWrite(motor1.output2, LOW);
+        digitalWrite(motor2.output1, LOW);
+        digitalWrite(motor2.output2, HIGH);
+        analogWrite(motor1.PWM, 255);
+        analogWrite(motor2.PWM, 255);
+          
+    }
+    delay(30);
+    analogWrite(motor1.PWM, 0);
+    analogWrite(motor2.PWM, 0);
+    
+}
+*/
 
 
