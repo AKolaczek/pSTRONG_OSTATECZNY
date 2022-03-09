@@ -84,7 +84,7 @@ void setup()
 void loop()
 {
     static uint16_t lastError = 0;
-   
+   //dlaczego to jest statyczne?
     uint16_t position = qtr.readLineBlack(sensorValues);
     int16_t error = position - 3500;
 
@@ -102,7 +102,7 @@ void loop()
     
     if (m1Speed < 0) { m1Speed = 0; }
     if (m2Speed < 0) { m2Speed = 0; }
-    
+    //2 razy to samo
     if (m1Speed < 0) { m1Speed = 0; }
     if (m2Speed < 0) { m2Speed = 0; }
     if (m1Speed > MAX_SPEED_ENGINE_1) { m1Speed = MAX_SPEED_ENGINE_1; }
