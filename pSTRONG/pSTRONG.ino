@@ -1,5 +1,6 @@
 
 #include <QTRSensors.h>
+#include<IRremote.h>
 
 #define PRZOD 0
 #define TYL 1
@@ -10,6 +11,7 @@
 #define START 4
 #define MAX_SPEED_ENGINE_1 255
 #define MAX_SPEED_ENGINE_2 255
+#define IRremote 7
 
 struct motor
 {
@@ -79,6 +81,9 @@ void setup()
     digitalWrite(motor2.output2, HIGH);
     analogWrite(motor1.PWM, 0);
     analogWrite(motor2.PWM, 0);
+
+    //PROBA IR
+
 }
 /* STEROWANIE PID'em */
 void loop()
@@ -107,6 +112,17 @@ void loop()
     analogWrite(motor1.PWM, m1Speed);
     analogWrite(motor2.PWM, m2Speed);
     delay(100);
+}
+
+void irremote() {
+    IRrecv irrecv(IRremote);
+    IrReceiver.enableIRIn();
+    IrReceiver.blink13(true);
+
+    while (1) {
+        if(IrReceiver.decode(&results))
+    }
+        
 }
 
 /*  STEROWANIE BEZ PID'a INSTRUKCJAMI IF{}
