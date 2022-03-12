@@ -130,7 +130,9 @@ void irremote() {
 
         
 }
-
+void kalibracja() {
+    
+}
 /*  STEROWANIE BEZ PID'a INSTRUKCJAMI IF{}
 
 void loop()
