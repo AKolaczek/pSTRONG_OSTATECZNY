@@ -1,14 +1,13 @@
 
 #include <IRremote.hpp>
 #include <QTRSensors.h>
-#include<IRremote.h>
+
+
 
 #define PRZOD 0
 #define TYL 1
 #define SKRET_LEWO 2
 #define SKRET_PRAWO 3 
-#define speedMAX 255
-#define speedLOW 255
 #define START 4
 #define MAX_SPEED_ENGINE_1 255
 #define MAX_SPEED_ENGINE_2 255
@@ -31,7 +30,7 @@ double KD = 5;
 
 void setup()
 {
- 
+    /*
     motor1.PWM = 5;
     motor1.output1 = 7;
     motor1.output2 = 8;
@@ -58,8 +57,9 @@ void setup()
     }
     digitalWrite(LED_BUILTIN, LOW); 
 
-   
+    */
     Serial.begin(9600);
+    /*
     for (uint8_t i = 0; i < SensorCount; i++)
     {
         Serial.print(qtr.calibrationOn.minimum[i]);
@@ -82,9 +82,9 @@ void setup()
     digitalWrite(motor2.output2, HIGH);
     analogWrite(motor1.PWM, 0);
     analogWrite(motor2.PWM, 0);
-
+    */
     //PROBA IR
-
+    irremote();
 }
 /* STEROWANIE PID'em */
 void loop()
@@ -116,13 +116,18 @@ void loop()
 }
 
 void irremote() {
-    IRrecv irrecv(IRremote);
-    IrReceiver.enableIRIn();
-    IrReceiver.blink13(true);
-
+    IRrecv irrecv(IRremote); //definiowanie odbiornika IR
+    decode_results results; //definiowanie wyniku
+    //IRsend irsend; //tworzenie obiektu nadajnika
+    irrecv.enableIRIn(); //aktywowanie odbiornika IR
+    irrecv.blink13(true);
     while (1) {
-        if(IrReceiver.decode(&results))
+        if (irrecv.decode(&results)) {
+            Serial.println(results.value, HEX);
+            irrecv.resume();
+        }
     }
+
         
 }
 
