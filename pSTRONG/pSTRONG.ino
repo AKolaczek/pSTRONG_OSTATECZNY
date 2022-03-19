@@ -57,8 +57,7 @@ void setup()
         qtr.calibrate();
     }
     digitalWrite(LED_BUILTIN, LOW); 
-
-    
+        
     Serial.begin(9600);
     
     for (uint8_t i = 0; i < SensorCount; i++)
@@ -67,8 +66,7 @@ void setup()
         Serial.print(' ');
     }
     Serial.println();
-
-    
+        
     for (uint8_t i = 0; i < SensorCount; i++)
     {
         Serial.print(qtr.calibrationOn.maximum[i]);
@@ -77,13 +75,14 @@ void setup()
     Serial.println();
     Serial.println();
     delay(5000);
+    /*
     digitalWrite(motor1.output1, LOW);
     digitalWrite(motor1.output2, HIGH);
     digitalWrite(motor2.output1, LOW);
     digitalWrite(motor2.output2, HIGH);
     analogWrite(motor1.PWM, 0);
     analogWrite(motor2.PWM, 0);
-    
+    */
     //PROBA IR
     //irremote();
 }
@@ -95,7 +94,6 @@ void loop()
     uint16_t position = qtr.readLineBlack(sensorValues);
     int16_t error = position - 3500;
 
-    //wypisywanie danych
     for (uint8_t i = 0; i < SensorCount; i++)
     {
         Serial.print(sensorValues[i]);
